@@ -1,0 +1,75 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex align-items-center justify-content-between gap-2 flex-wrap">
+        <h5 class="mb-0">{{ page_title }}</h5>
+
+        <form method="get" class="d-flex align-items-center gap-2">
+          <input type="hidden" name="metric" value="{{ metric|default:'sum_value_eur' }}"/>
+
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="modeSwitch"
+                   name="mode" value="month"
+                   {% if mode == 'month' %}checked{% endif %}
+                   onchange="this.form.submit()">
+            <label class="form-check-label" for="modeSwitch">
+              {% if mode == 'month' %}Monthly{% else %}Yearly{% endif %}
+            </label>
+          </div>
+
+          <select name="year" class="form-select form-select-sm"
+                  {% if mode != 'month' %}disabled{% endif %}
+                  onchange="this.form.submit()">
+            {% for y in years %}
+              <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+          </select>
+
+          <select name="metric" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="sum_value_eur" {% if metric == 'sum_value_eur' %}selected{% endif %}>Sum (EUR)</option>
+            <option value="sum_value" {% if metric == 'sum_value' %}selected{% endif %}>Sum (orig. currency*)</option>
+            <option value="count" {% if metric == 'count' %}selected{% endif %}>Count</option>
+          </select>
+        </form>
+      </div>
+
+      <div class="card-body">
+        <div id="contractsBar" style="min-height:380px;"></div>
+
+        {{ labels|json_script:"chart-labels" }}
+        {{ values|json_script:"chart-values" }}
+
+        <div class="text-muted small mt-2">
+          {% if metric == 'sum_value' %}
+            *Sum by original currency field; mixing currencies may not be meaningful.
+          {% endif %}
+        </div>
+
+        <script src="{% static 'js/lib/apexcharts.min.js' %}"></script>
+        <script>
+          window.addEventListener('DOMContentLoaded', function () {
+            const labels = JSON.parse(document.getElementById("chart-labels").textContent || "[]");
+            const values = JSON.parse(document.getElementById("chart-values").textContent || "[]")
+              .map(v => Number(v)).filter(Number.isFinite);
+
+            const el = document.querySelector("#contractsBar");
+            const options = {
+              chart: { type: "bar", height: 380, toolbar: { show: false } },
+              series: [{ name: "Value", data: values }],
+              xaxis: { categories: labels },
+              dataLabels: { enabled: false },
+              plotOptions: { bar: { borderRadius: 4, columnWidth: "45%" } },
+              grid: { strokeDashArray: 4 }
+            };
+            new ApexCharts(el, options).render();
+          });
+        </script>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="card shadow-sm">
+    <div class="card-header"><h5 class="mb-0">Размер на изхарчените средства за обществени поръчки по години</h5></div>
+    <div class="card-body">
+      <div id="salesBar" style="min-height:380px;"></div>
+
+      {{ labels|json_script:"chart-labels" }}
+      {{ values|json_script:"chart-values" }}
+
+      <script src="{% static 'js/lib/apexcharts.min.js' %}"></script>
+      <script>
+        window.addEventListener('DOMContentLoaded', function () {
+          const labels = JSON.parse(document.getElementById("chart-labels").textContent || "[]");
+          const values = JSON.parse(document.getElementById("chart-values").textContent || "[]")
+                           .map(v => Number(v)).filter(Number.isFinite);
+
+          console.log("CSV parsed → labels:", labels, "values:", values);
+
+          if (!labels.length || !values.length) {
+            console.warn("No data parsed. Check CSV path, headers, delimiter, or encoding.");
+          }
+
+          new ApexCharts(document.querySelector("#salesBar"), {
+            chart: { type: "bar", height: 380, toolbar: { show: false } },
+            series: [{ name: "Value", data: values }],
+            xaxis: { categories: labels },
+            dataLabels: { enabled: false },
+            plotOptions: { bar: { borderRadius: 4, columnWidth: "45%" } },
+            grid: { strokeDashArray: 4 }
+          }).render();
+        });
+      </script>
+    </div>
+  </div>
+{% endblock %}
