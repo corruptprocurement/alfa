@@ -401,11 +401,7 @@ def data_table(request):
         "error": map_error,  # shown as a small warning if present
     })
 
-def get_unique_orders_count(request):
-    OUTPUT_DIR = Path(r"C:\Users\m.rusinov\Downloads\wowdash-tailwind-bootstrap-react-next-django-2025-09-21-18-38-19-utc\Main-file_WowDash_Bundle\Django\Django\data")
-    file_path = OUTPUT_DIR / 'number_of_unique_orders.csv'
-
-    # Прочитане на CSV или генериране, ако трябва
+    OUTPUT_DIR = DATA_DIR
     df = pd.read_csv(file_path)
 
     # Изчисляваме броя на уникалните поръчки
@@ -415,7 +411,7 @@ def get_unique_orders_count(request):
     return JsonResponse({'unique_orders_count': unique_orders})
 
 def dashboard(request):
-    OUTPUT_DIR = Path(r"C:\Users\m.rusinov\Downloads\wowdash-tailwind-bootstrap-react-next-django-2025-09-21-18-38-19-utc\Main-file_WowDash_Bundle\Django\Django\data")
+    OUTPUT_DIR = DATA_DIR
     file_path = OUTPUT_DIR / 'number_of_unique_orders.csv'
 
     try:
@@ -433,7 +429,7 @@ def dashboard(request):
 
 
 def dashboard_total_value(request):
-    OUTPUT_DIR = Path(r"C:\Users\m.rusinov\Downloads\wowdash-tailwind-bootstrap-react-next-django-2025-09-21-18-38-19-utc\Main-file_WowDash_Bundle\Django\Django\data")
+    OUTPUT_DIR = DATA_DIR
     file_path = OUTPUT_DIR / "total_spent.csv"
 
     try:
@@ -452,7 +448,7 @@ def dashboard_total_value(request):
 
 
 def get_unique_orders_count(request):
-    OUTPUT_DIR = Path(r"C:\Users\m.rusinov\Downloads\wowdash-tailwind-bootstrap-react-next-django-2025-09-21-18-38-19-utc\Main-file_WowDash_Bundle\Django\Django\data")
+    OUTPUT_DIR = DATA_DIR
     file_path = OUTPUT_DIR / 'number_of_unique_orders.csv'
 
     try:
@@ -475,8 +471,7 @@ def get_unique_orders_count(request):
 
 
 def sales_data(request):
-    OUTPUT_DIR = Path(
-        r"C:\Users\m.rusinov\Downloads\wowdash-tailwind-bootstrap-react-next-django-2025-09-21-18-38-19-utc\Main-file_WowDash_Bundle\Django\Django\data")
+    OUTPUT_DIR = DATA_DIR
     file_path = OUTPUT_DIR / "total_spent.csv"
 
     # Get the 'period' query param: yearly or monthly
