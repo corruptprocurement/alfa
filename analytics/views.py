@@ -514,8 +514,12 @@ def sales_data(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 def get_total_sum(request):
-    OUTPUT_DIR = Path(r"C:\Users\m.rusinov\Downloads\wowdash-tailwind-bootstrap-react-next-django-2025-09-21-18-38-19-utc\Main-file_WowDash_Bundle\Django\Django\data")
-    file_path = OUTPUT_DIR / "total_spent.csv"
+    data_dir = Path(getattr(settings, "DATA_DIR", Path(settings.BASE_DIR) / "data"))
+
+    # If you want to control which file to load (optional):
+    file_name = request.GET.get("file", "total_spent.csv")
+    file_path = data_dir / file_name
+
 
     try:
         df = pd.read_csv(file_path, encoding='utf-8-sig')
