@@ -471,29 +471,48 @@ def get_unique_orders_count(request):
 
 
 def sales_data(request):
-    OUTPUT_DIR = DATA_DIR
-    file_path = OUTPUT_DIR / "total_spent.csv"
+    data_dir = Path(getattr(settings, "DATA_DIR", Path(settings.BASE_DIR) / "data"))
 
-    # Get the 'period' query param: yearly or monthly
-    period = request.GET.get('period', 'monthly')
+    # If you want to control which file to load (optional):
+    file_name = request.GET.get("file", "total_spent.csv")
+    file_path = data_dir / file_name
+
+    period = request.GET.get("period", "monthly")
+
+    if not file_path.exists():
+        # Help yourself in logs and the response
+        available = sorted(p.name for p in data_dir.glob("*.csv"))
+        return JsonResponse(
+            {
+                "error": f"CSV not found: {file_path}",
+                "available_csvs": available,
+                "data_dir": str(data_dir),
+            },
+            status=404,
+        )
 
     try:
-        df = pd.read_csv(file_path, encoding='utf-8-sig')
-        df['Дата на публикуване на обявлението'] = pd.to_datetime(df['Дата на публикуване на обявлението'])
+        df = pd.read_csv(file_path, encoding="utf-8-sig")
+        df["Дата на публикуване на обявлението"] = pd.to_datetime(
+            df["Дата на публикуване на обявлението"]
+        )
 
-        if period == 'yearly':
-            grouped = df.groupby(df['Дата на публикуване на обявлението'].dt.year)['Преизчислена стойност в Евро'].sum()
+        if period == "yearly":
+            grouped = df.groupby(df["Дата на публикуване на обявлението"].dt.year)[
+                "Преизчислена стойност в Евро"
+            ].sum()
             labels = grouped.index.astype(str).tolist()
-        else:  # monthly
-            grouped = df.groupby(df['Дата на публикуване на обявлението'].dt.strftime('%Y-%m'))[
-                'Преизчислена стойност в Евро'].sum()
+        else:
+            grouped = df.groupby(
+                df["Дата на публикуване на обявлението"].dt.strftime("%Y-%m")
+            )["Преизчислена стойност в Евро"].sum()
             labels = grouped.index.tolist()
 
         data = grouped.tolist()
-        return JsonResponse({'labels': labels, 'data': data})
+        return JsonResponse({"labels": labels, "data": data})
 
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({"error": str(e)}, status=500)
 def get_total_sum(request):
     OUTPUT_DIR = Path(r"C:\Users\m.rusinov\Downloads\wowdash-tailwind-bootstrap-react-next-django-2025-09-21-18-38-19-utc\Main-file_WowDash_Bundle\Django\Django\data")
     file_path = OUTPUT_DIR / "total_spent.csv"
