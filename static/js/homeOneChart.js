@@ -1,6 +1,5 @@
-
-  // =========================== Sales Statistic Line Chart Start ===============================
-  var options = {
+// =========================== Sales Statistic Line Chart Start ===============================
+  var lineChartOptions = {
     series: [{
       name: "This month",
       data: [10, 20, 12, 30, 14, 35, 16, 32, 14, 25, 13, 28]
@@ -105,12 +104,13 @@
     }
   };
 
-    var chart = new ApexCharts(document.querySelector("#chart"), options);
+    var lineChart = new ApexCharts(document.querySelector("#chart"), lineChartOptions);
+    lineChart.render();
     chart.render();
   // =========================== Sales Statistic Line Chart End ===============================
 
   // ================================ Total Subscriber bar chart Start ================================ 
-  var options = {
+  var totalSubsBarOptions = {
       series: [{
           name: "Sales",
           data: [{
@@ -190,12 +190,13 @@
       },
   };
 
-  var chart = new ApexCharts(document.querySelector("#barChart"), options);
+  var totalSubsBarChart = new ApexCharts(document.querySelector("#barChart"), totalSubsBarOptions);
+  totalSubsBarChart.render();
   chart.render();
   // ================================ Total Subscriber bar chart End ================================ 
 
     // ================================ Users Overview Donut chart Start ================================ 
-    var options = { 
+    var donutOptions = { 
       series: [500, 500, 500],
       colors: ['#FF9F29', '#487FFF', '#E4F1FF'],
       labels: ['Active', 'New', 'Total'] ,
@@ -240,12 +241,13 @@
       }],
     };
 
-    var chart = new ApexCharts(document.querySelector("#userOverviewDonutChart"), options);
+    var donutChart = new ApexCharts(document.querySelector("#userOverviewDonutChart"), donutOptions);
+    donutChart.render();
     chart.render();
   // ================================ Users Overview Donut chart End ================================ 
 
   // ================================ Revenue Report Chart Start ================================ 
-    var options = {
+    var revenueOptions = {
       series: [{
         name: 'Net Profit',
         data: [20000, 16000, 14000, 25000, 45000, 18000, 28000, 11000, 26000, 48000, 18000, 22000]
@@ -297,7 +299,8 @@
       },
     };
 
-    var chart = new ApexCharts(document.querySelector("#paymentStatusChart"), options);
+    var revenueChart = new ApexCharts(document.querySelector("#paymentStatusChart"), revenueOptions);
+    revenueChart.render();
     chart.render();
   // ================================ Revenue Report Chart End ================================ 
   
@@ -370,5 +373,4 @@
       selectedRegions: [],
       enableZoom: false,
       hoverColor: '#fff',
-    }); 
-  // ================================ J Vector Map End ================================ 
+    });

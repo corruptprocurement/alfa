@@ -18,45 +18,24 @@
                 </a>
                 <ul class="sidebar-submenu">
                     <li>
-                        <a href="{% url 'index' %}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> AI</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'index2' %}"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> CRM</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'index3' %}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> eCommerce</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'index4' %}"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Cryptocurrency</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'index5' %}"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Investment</a>
+                        <a href="{% url 'index' %}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Обществени поръчки в корупционен риск</a>
                     </li>
 
-                    <li>
-                        <a href="{% url 'index6' %}"><i class="ri-circle-fill circle-icon text-purple w-auto"></i> LMS</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'index7' %}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> NFT & Gaming</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'index8' %}"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Medical</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'index9' %}"><i class="ri-circle-fill circle-icon text-purple w-auto"></i> Analytics</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'index10' %}"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> POS & Inventory </a>
-                    </li>
 
                 </ul>
             </li>
-            <li class="sidebar-menu-group-title">Application</li>
+            <li class="sidebar-menu-group-title">Анализи</li>
             <li>
                 <a href="{% url 'email' %}">
                     <iconify-icon icon="mage:email" class="menu-icon"></iconify-icon>
                     <span>Email</span>
                 </a>
+				
+			<li class="nav-item">
+			<a class="nav-link" href="/data/table/?file=final.csv">
+			📊 Data Table
+			</a>
+			</li>
             </li>
             <li>
                 <a href="{% url 'chat' %}">

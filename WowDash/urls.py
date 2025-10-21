@@ -36,7 +36,11 @@ from analytics.views import bar_chart_from_csv
 from analytics.views import bar_contracts_by_year
 from analytics.views import contracts_bar
 from analytics.views import data_table
-
+from analytics.views import get_unique_orders_count
+from analytics.views import dashboard_total_value
+from analytics.views import get_total_sum
+from analytics.views import sales_data
+from django.shortcuts import render
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("charts/bar/", bar_chart, name="bar_chart"),
@@ -44,6 +48,9 @@ urlpatterns = [
     path("charts/contracts/year/", bar_contracts_by_year, name="contracts_by_year"),
     path("charts/contracts/", contracts_bar, name="contracts_bar"),
     path("data/table/", data_table, name="data_table"),
+    path('api/unique-orders/', get_unique_orders_count, name='unique-orders'),
+    path('api/total-sum/', get_total_sum, name='get_total_sum'),
+    path('api/sales-data/', sales_data, name='sales-data'),
 
 # home routes
 
