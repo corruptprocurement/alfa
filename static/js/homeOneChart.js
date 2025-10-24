@@ -1,198 +1,189 @@
 // =========================== Sales Statistic Line Chart Start ===============================
-  var lineChartOptions = {
-    series: [{
-      name: "This month",
-      data: [10, 20, 12, 30, 14, 35, 16, 32, 14, 25, 13, 28]
-    }],
-    chart: {
-      height: 264,
-      type: 'line',
-      toolbar: {
-        show: false
-      },
-      zoom: {
-        enabled: false
-      },
-      dropShadow: {
-        enabled: true,
-        top: 6,
-        left: 0,
-        blur: 4,
-        color: "#000",
-        opacity: 0.1,
-      },
-    },
-    dataLabels: {
-      enabled: false
-    },
-    stroke: {
-      curve: 'smooth',
-      colors: ['#487FFF'], // Specify the line color here
-      width: 3
-    },
-    markers: {
-      size: 0,
-      strokeWidth: 3,
-      hover: {
-        size: 8
+function renderSalesChart(period = 'yearly') {
+  fetch(`/api/sales-data/?period=${period}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        console.error("Error fetching sales data:", data.error);
+        return;
       }
-    },
-    tooltip: {
-      enabled: true,
-      x: {
-        show: true,
-      },
-      y: {
-        show: false,
-      },
-      z: {
-        show: false,
-      }
-    },
-    grid: {
-      row: {
-        colors: ['transparent', 'transparent'], // takes an array which will be repeated on columns
-        opacity: 0.5
-      },
-      borderColor: '#D1D5DB',
-      strokeDashArray: 3,
-    },
-    yaxis: {
-      labels: {
-        formatter: function (value) {
-          return "$" + value + "k";
-        },
-        style: {
-          fontSize: "14px"
-        }
-      },
-    },
-    xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      tooltip: {
-        enabled: false
-      },
-      labels: {
-        formatter: function (value) {
-          return value;
-        },
-        style: {
-          fontSize: "14px"
-        }
-      },
-      axisBorder: {
-        show: false
-      },
-      crosshairs: {
-        show: true,
-        width: 20,
-        stroke: {
-          width: 0
-        },
-        fill: {
-          type: 'solid',
-          color: '#487FFF40',
-          // gradient: {
-          //   colorFrom: '#D8E3F0',
-          //   // colorTo: '#BED1E6',
-          //   stops: [0, 100],
-          //   opacityFrom: 0.4,
-          //   opacityTo: 0.5,
-          // },
-        }
-      }
-    }
-  };
 
-    var lineChart = new ApexCharts(document.querySelector("#chart"), lineChartOptions);
-    lineChart.render();
-    chart.render();
-  // =========================== Sales Statistic Line Chart End ===============================
+      var lineChartOptions = {
+        series: [{
+          name: "Sales",
+          data: data.data
+        }],
+        chart: {
+          height: 200,
+          type: 'line',
+          toolbar: { show: false },
+          zoom: { enabled: false },
+          dropShadow: {
+            enabled: true,
+            top: 6,
+            left: 0,
+            blur: 4,
+            color: "#000",
+            opacity: 0.1
+          }
+        },
+        dataLabels: { enabled: false },
+        stroke: {
+          curve: 'smooth',
+          colors: ['#487FFF'],
+          width: 3
+        },
+        markers: {
+          size: 0,
+          strokeWidth: 3,
+          hover: { size: 8 }
+        },
+        tooltip: {
+          enabled: true,
+          x: { show: true },
+          y: { show: false },
+          z: { show: false }
+        },
+        grid: {
+          row: { colors: ['transparent', 'transparent'], opacity: 0.5 },
+          borderColor: '#D1D5DB',
+          strokeDashArray: 3
+        },
+        yaxis: {
+          labels: {
+            formatter: function (value) { return "$" + value + "k"; },
+            style: { fontSize: "14px" }
+          }
+        },
+        xaxis: {
+          categories: data.labels,
+          tooltip: { enabled: false },
+          labels: {
+            formatter: function (value) { return value; },
+            style: { fontSize: "14px" }
+          },
+          axisBorder: { show: false },
+          crosshairs: {
+            show: true,
+            width: 20,
+            stroke: { width: 0 },
+            fill: {
+              type: 'solid',
+              color: 'rgba(72,127,255,0.25)'
+            }
+          }
+        }
+      };
+
+      var chartElement = document.querySelector("#chart");
+      if (chartElement) {
+        // Clear existing chart if any
+        chartElement.innerHTML = ''; 
+        var lineChart = new ApexCharts(chartElement, lineChartOptions);
+        lineChart.render();
+      }
+    })
+    .catch(error => {
+      console.error("Error fetching sales data:", error);
+    });
+}
+
+// Initial render
+renderSalesChart('yearly')
+
+// Add event listener for the select element
+document.addEventListener('DOMContentLoaded', function() {
+  const salesPeriodSelect = document.querySelector('.form-select.bg-base.form-select-sm.w-auto');
+  if (salesPeriodSelect) {
+    salesPeriodSelect.addEventListener('change', function() {
+      renderSalesChart(this.value.toLowerCase());
+    });
+  }
+});
+// =========================== Sales Statistic Line Chart End ===============================
 
   // ================================ Total Subscriber bar chart Start ================================ 
-  var totalSubsBarOptions = {
-      series: [{
-          name: "Sales",
-          data: [{
-              x: 'Sun',
-              y: 15,
-          }, {
-              x: 'Mon',
-              y: 12,
-          }, {
-              x: 'Tue',
-              y: 18,
-          }, {
-              x: 'Wed',
-              y: 20,
-          }, {
-              x: 'Thu',
-              y: 13,
-          }, {
-              x: 'Fri',
-              y: 16,
-          }, {
-              x: 'Sat',
-              y: 6,
-          }]
-      }],
-      chart: {
-          type: 'bar',
-          height: 235,
-          toolbar: {
-              show: false
-          },
-      },
-      plotOptions: {
-          bar: {
-            borderRadius: 6,
-            horizontal: false,
-            columnWidth: 24,
-            columnWidth: '52%',
-            endingShape: 'rounded',
-          }
-      },
-      dataLabels: {
-          enabled: false
-      },
-      fill: {
-          type: 'gradient',
-          colors: ['#dae5ff'], // Set the starting color (top color) here
-          gradient: {
-              shade: 'light', // Gradient shading type
-              type: 'vertical',  // Gradient direction (vertical)
-              shadeIntensity: 0.5, // Intensity of the gradient shading
-              gradientToColors: ['#dae5ff'], // Bottom gradient color (with transparency)
-              inverseColors: false, // Do not invert colors
-              opacityFrom: 1, // Starting opacity
-              opacityTo: 1,  // Ending opacity
-              stops: [0, 100],
-          },
-      },
-      grid: {
-          show: false,
-          borderColor: '#D1D5DB',
-          strokeDashArray: 4, // Use a number for dashed style
-          position: 'back',
-          padding: {
-            top: -10,
-            right: -10,
-            bottom: -10,
-            left: -10
-          }
-      },
-      xaxis: {
-          type: 'category',
-          categories: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-      },
-      yaxis: {
-        show: false,
-      },
-  };
+  function renderCpvBarChart() {
+    fetch('/api/cpv-data/')
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          console.error("Error fetching CPV data:", data.error);
+          return;
+        }
 
-  var totalSubsBarChart = new ApexCharts(document.querySelector("#barChart"), totalSubsBarOptions);
-  totalSubsBarChart.render();
-  chart.render();
+        var totalSubsBarOptions = {
+            series: [{
+                name: "Преизчислена стойност в Евро",
+                data: data.data.map(value => ({ y: value }))
+            }],
+            chart: {
+                type: 'bar',
+                height: 235,
+                toolbar: {
+                    show: false
+                },
+            },
+            plotOptions: {
+                bar: {
+                  borderRadius: 6,
+                  horizontal: false,
+                  columnWidth: 24,
+                  columnWidth: '52%',
+                  endingShape: 'rounded',
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            fill: {
+                type: 'gradient',
+                colors: ['#dae5ff'], // Set the starting color (top color) here
+                gradient: {
+                    shade: 'light', // Gradient shading type
+                    type: 'vertical',  // Gradient direction (vertical)
+                    shadeIntensity: 0.5, // Intensity of the gradient shading
+                    gradientToColors: ['#dae5ff'], // Bottom gradient color (with transparency)
+                    inverseColors: false, // Do not invert colors
+                    opacityFrom: 1, // Starting opacity
+                    opacityTo: 1,  // Ending opacity
+                    stops: [0, 100],
+                },
+            },
+            grid: {
+                show: false,
+                borderColor: '#D1D5DB',
+                strokeDashArray: 4, // Use a number for dashed style
+                position: 'back',
+                padding: {
+                  top: -10,
+                  right: -10,
+                  bottom: -10,
+                  left: -10
+                }
+            },
+            xaxis: {
+                type: 'category',
+                categories: data.labels
+            },
+            yaxis: {
+              show: false,
+            },
+        };
+
+        var totalSubsBarChartElement = document.querySelector("#barChart");
+        if (totalSubsBarChartElement) {
+          var totalSubsBarChart = new ApexCharts(totalSubsBarChartElement, totalSubsBarOptions);
+          totalSubsBarChart.render();
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching CPV data:", error);
+      });
+  }
+
+  // Initial render for CPV bar chart
+  renderCpvBarChart();
   // ================================ Total Subscriber bar chart End ================================ 
 
     // ================================ Users Overview Donut chart Start ================================ 
@@ -243,7 +234,6 @@
 
     var donutChart = new ApexCharts(document.querySelector("#userOverviewDonutChart"), donutOptions);
     donutChart.render();
-    chart.render();
   // ================================ Users Overview Donut chart End ================================ 
 
   // ================================ Revenue Report Chart Start ================================ 
@@ -301,11 +291,12 @@
 
     var revenueChart = new ApexCharts(document.querySelector("#paymentStatusChart"), revenueOptions);
     revenueChart.render();
-    chart.render();
   // ================================ Revenue Report Chart End ================================ 
   
   // ================================ J Vector Map Start ================================ 
-  $('#world-map').vectorMap(
+  var worldMapElement = $('#world-map');
+  if (worldMapElement.length) {
+    worldMapElement.vectorMap(
     {
       map: 'world_mill_en',
       backgroundColor: 'transparent',
@@ -374,3 +365,4 @@
       enableZoom: false,
       hoverColor: '#fff',
     });
+  }

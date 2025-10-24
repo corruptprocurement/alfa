@@ -40,6 +40,7 @@ from analytics.views import get_unique_orders_count
 from analytics.views import dashboard_total_value
 from analytics.views import get_total_sum
 from analytics.views import sales_data
+from analytics.views import cpv_data
 from django.shortcuts import render
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -51,6 +52,7 @@ urlpatterns = [
     path('api/unique-orders/', get_unique_orders_count, name='unique-orders'),
     path('api/total-sum/', get_total_sum, name='get_total_sum'),
     path('api/sales-data/', sales_data, name='sales-data'),
+    path('api/cpv-data/', cpv_data, name='cpv-data'),
 
 # home routes
 

@@ -477,7 +477,7 @@ def sales_data(request):
     file_name = request.GET.get("file", "total_spent.csv")
     file_path = data_dir / file_name
 
-    period = request.GET.get("period", "monthly")
+    period = request.GET.get("period", "yearly")
 
     if not file_path.exists():
         # Help yourself in logs and the response
@@ -535,6 +535,31 @@ def get_total_sum(request):
     except Exception as e:
         print("❌ Error in /api/unique-orders/:", e)
         return JsonResponse({'error': str(e)}, status=500)
+
+
+def cpv_data(request):
+    data_dir = Path(getattr(settings, "DATA_DIR", Path(settings.BASE_DIR) / "data"))
+    file_path = data_dir / "cpv.csv"
+
+    if not file_path.exists():
+        return JsonResponse({"error": f"CSV not found: {file_path}"}, status=404)
+
+    try:
+        df = pd.read_csv(file_path, encoding="utf-8-sig")
+
+        # Drop rows where 'Основен CPV код' is NA
+        df.dropna(subset=['Основен CPV код'], inplace=True)
+
+        # Group by 'Основен CPV код' and sum 'Преизчислена стойност в Евро'
+        grouped = df.groupby('Основен CPV код')['Преизчислена стойност в Евро'].sum()
+
+        labels = grouped.index.tolist()
+        values = grouped.tolist()
+
+        return JsonResponse({"labels": labels, "data": values})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 # analytics/views.py
 # from pathlib import Path
 # import csv
