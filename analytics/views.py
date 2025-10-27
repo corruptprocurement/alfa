@@ -547,8 +547,11 @@ def cpv_data(request):
     try:
         df = pd.read_csv(file_path, encoding="utf-8-sig")
 
-        # Drop rows where 'Основен CPV код' is NA
-        df.dropna(subset=['Основен CPV код'], inplace=True)
+        # Convert 'Преизчислена стойност в Евро' to numeric, coercing errors to NaN
+        df['Преизчислена стойност в Евро'] = pd.to_numeric(df['Преизчислена стойност в Евро'], errors='coerce')
+
+        # Drop rows where 'Основен CPV код' or 'Преизчислена стойност в Евро' is NA
+        df.dropna(subset=['Основен CPV код', 'Преизчислена стойност в Евро'], inplace=True)
 
         # Group by 'Основен CPV код' and sum 'Преизчислена стойност в Евро'
         grouped = df.groupby('Основен CPV код')['Преизчислена стойност в Евро'].sum()
@@ -559,6 +562,125 @@ def cpv_data(request):
         return JsonResponse({"labels": labels, "data": values})
 
     except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+
+def risky_mean_data(request):
+    """
+    Returns donut-ready data computed from risky_mean.csv, which you saved via:
+      result = final_copy.groupby('risky_category')['risky_mean'].agg(['count'])
+      result.to_csv(OUTPUT_DIR / "risky_mean.csv", encoding="utf-8-sig")
+    Response shape: {"labels": [...], "data": [...]}
+    """
+    try:
+        data_dir = Path(getattr(settings, "DATA_DIR", Path(settings.BASE_DIR) / "data"))
+        file_path = data_dir / "risky_mean.csv"
+
+        if not file_path.exists():
+            return JsonResponse({"error": f"CSV not found: {file_path}"}, status=404)
+
+        # The saved CSV stores the group key as the index; read with index_col=0.
+        df = pd.read_csv(file_path, encoding="utf-8-sig", index_col=0)
+
+        # Be defensive about column naming:
+        # After agg(['count']) the column should literally be 'count'.
+        # But if anything changed, fall back to first numeric column.
+        if 'count' not in df.columns:
+            # try to find a numeric column (e.g., someone renamed it)
+            numeric_cols = df.select_dtypes(include='number').columns.tolist()
+            if not numeric_cols:
+                return JsonResponse({"error": "No numeric 'count' column found in risky_mean.csv."}, status=500)
+            df.rename(columns={numeric_cols[0]: 'count'}, inplace=True)
+
+        df = df.dropna(subset=['count'])
+        df['count'] = pd.to_numeric(df['count'], errors='coerce').fillna(0)
+
+        labels = df.index.astype(str).tolist()
+        values = df['count'].astype(float).tolist()
+
+        return JsonResponse({"labels": labels, "data": values})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+def executors_per_year(request):
+    """
+    Read count_of_executors_per_year.csv and return:
+      {"labels": ["2020","2021",...], "data": [12, 18, ...]}
+
+    Robust to: unnamed index, different count column names, NA rows, non-numeric years.
+    Builds a continuous range from min year to current year (future years excluded).
+    """
+    try:
+        data_dir = Path(getattr(settings, "DATA_DIR", Path(settings.BASE_DIR) / "data"))
+        file_path = data_dir / "count_of_executors_per_year.csv"
+
+        if not file_path.exists():
+            return JsonResponse({"error": f"CSV not found: {file_path}"}, status=404)
+
+        # Read CSV. Year is typically the index; but be flexible.
+        df = pd.read_csv(file_path, encoding="utf-8-sig")
+
+        # Case 1: year is the index (common after groupby(...).to_csv with index=True (default))
+        #         then the first column will be something like 'Unnamed: 0' or actual 'year'.
+        if df.shape[1] == 1:
+            # single column -> it’s the counts; the index got saved as the first unnamed column by Pandas
+            # read again with index_col=0 so the first column becomes the index (years)
+            df = pd.read_csv(file_path, encoding="utf-8-sig", index_col=0)
+            # normalize counts column name
+            if df.shape[1] != 1:
+                # unexpected shape, fallback to numeric column detection
+                pass
+        # Now we have either:
+        #  - index is years, one data column with counts; or
+        #  - a regular frame with at least a 'year' column.
+
+        # Ensure we have a 'year' column explicitly, regardless of how it was saved.
+        if 'year' not in df.columns:
+            # promote the index to a column named 'year'
+            df = df.rename_axis('year').reset_index()
+
+        # Identify the counts column robustly
+        # Preferred exact match first:
+        preferred_cols = ['ЕИК на изпълнителя', 'count', 'counts', 'value', 'total']
+        count_col = None
+        for c in preferred_cols:
+            if c in df.columns:
+                count_col = c
+                break
+        if count_col is None:
+            # fallback: first numeric column that is NOT 'year'
+            numeric_cols = [c for c in df.select_dtypes(include='number').columns if c != 'year']
+            if not numeric_cols:
+                return JsonResponse({"error": "No numeric count column found in CSV."}, status=500)
+            count_col = numeric_cols[0]
+
+        # Clean types
+        df['year'] = pd.to_numeric(df['year'], errors='coerce')
+        df[count_col] = pd.to_numeric(df[count_col], errors='coerce')
+        df = df.dropna(subset=['year'])                # drop rows without a valid year
+        df['year'] = df['year'].astype(int)
+        df[count_col] = df[count_col].fillna(0).astype(int)
+
+        if df.empty:
+            return JsonResponse({"labels": [], "data": []})
+
+        # Build continuous year range from min year to current year; fill missing with 0
+        min_year = int(df['year'].min())
+        current_year = datetime.now().year
+        df = df.groupby('year', as_index=False)[count_col].sum()  # just in case duplicates exist
+        df_full = (
+            pd.DataFrame({'year': range(min_year, current_year + 1)})
+            .merge(df, on='year', how='left')
+            .fillna({count_col: 0})
+        )
+
+        labels = df_full['year'].astype(int).astype(str).tolist()
+        values = df_full[count_col].astype(int).tolist()
+        return JsonResponse({"labels": labels, "data": values})
+    except Exception as e:
+        # Temporary: return the error text so you can see it in the browser/console
         return JsonResponse({"error": str(e)}, status=500)
 # analytics/views.py
 # from pathlib import Path

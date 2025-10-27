@@ -41,6 +41,8 @@ from analytics.views import dashboard_total_value
 from analytics.views import get_total_sum
 from analytics.views import sales_data
 from analytics.views import cpv_data
+from analytics.views import risky_mean_data
+from analytics.views import executors_per_year
 from django.shortcuts import render
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -53,6 +55,8 @@ urlpatterns = [
     path('api/total-sum/', get_total_sum, name='get_total_sum'),
     path('api/sales-data/', sales_data, name='sales-data'),
     path('api/cpv-data/', cpv_data, name='cpv-data'),
+    path("api/risky-mean/", risky_mean_data, name="risky_mean_data"),
+    path("api/executors-per-year/", executors_per_year, name="executors_per_year"),
 
 # home routes
 
